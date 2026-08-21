@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>판매지수 1000 — 예스24 신간 국내도서</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Pretendard:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --text: #1A1A1A;
+    --text-soft: #6B6B6B;
+    --line: #E3E3E3;
+    --line-strong: #CFCFCF;
+    --accent: #1657D8;
+    --new-bg: #EAF0FF;
+    --new-text: #1657D8;
+    --ebook-bg: #F0F0F0;
+    --ebook-text: #4A4A4A;
+  }
+  *{ box-sizing:border-box; }
+  html,body{ margin:0; padding:0; }
+  body{
+    background:#FFFFFF;
+    color: var(--text);
+    font-family:'Pretendard','Apple SD Gothic Neo',sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap{ max-width: 1180px; margin: 0 auto; padding: 0 28px; }
+
+  /* header */
+  header{ border-bottom: 2px solid var(--text); padding: 36px 0 18px; }
+  header .eyebrow{
+    font-family:'IBM Plex Mono', monospace;
+    font-size: 12px;
+    color: var(--text-soft);
+    letter-spacing: 0.05em;
+    margin-bottom: 6px;
+  }
+  header h1{
+    font-size: 26px;
+    font-weight: 700;
+    margin: 0 0 8px;
+    letter-spacing: -0.01em;
+  }
+  header p{
+    font-size: 13.5px;
+    color: var(--text-soft);
+    line-height: 1.6;
+    margin: 0;
+    max-width: 700px;
+  }
+  header .meta{
+    margin-top: 14px;
+    font-family:'IBM Plex Mono', monospace;
+    font-size: 12px;
+    color: var(--text-soft);
+    display:flex;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+  header .meta b{ color: var(--text); font-weight: 600; }
+  #dataNotice{
+    display:none;
+    margin-top: 12px;
+    font-size: 12px;
+    color: #9A6B00;
+    background: #FFF6E0;
+    border: 1px solid #F0DFA8;
+    padding: 8px 12px;
+    border-radius: 4px;
+  }
+
+  /* tabs */
+  .tabbar-wrap{
+    position: sticky;
+    top: 0;
+    background: #fff;
+    z-index: 10;
+    border-bottom: 1px solid var(--line);
+  }
+  .tabbar{
+    display:flex;
+    gap: 2px;
+    overflow-x: auto;
+    padding-top: 10px;
+  }
+  .tab{
+    flex: 0 0 auto;
+    font-size: 13.5px;
+    color: var(--text-soft);
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid transparent;
+    padding: 10px 14px;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .tab .count{
+    font-family:'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: var(--text-soft);
+    margin-left: 5px;
+  }
+  .tab:hover{ color: var(--text); }
+  .tab.active{
+    color: var(--text);
+    font-weight: 700;
+    border-bottom-color: var(--accent);
+  }
+  .tab.active .count{ color: var(--accent); }
+
+  /* controls */
+  .controls{
+    display:flex;
+    align-items:center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+    padding: 16px 0;
+  }
+  .threshold-line{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    font-family:'IBM Plex Mono', monospace;
+    font-size: 12.5px;
+    color: var(--text-soft);
+  }
+  .threshold-line input[type=range]{
+    accent-color: var(--accent);
+    width: 140px;
+  }
+  .threshold-line .val{
+    color: var(--accent);
+    font-weight: 700;
+    min-width: 40px;
+  }
+  .sortbar{ display:flex; gap: 6px; }
+  .sortbar button{
+    font-family:'IBM Plex Mono', monospace;
+    font-size: 11.5px;
+    border:1px solid var(--line-strong);
+    background: #fff;
+    color: var(--text-soft);
+    padding: 6px 10px;
+    cursor:pointer;
+    border-radius: 3px;
+  }
+  .sortbar button.active{ color: var(--text); border-color: var(--text); font-weight: 600; }
+
+  /* table */
+  table{ width:100%; border-collapse: collapse; font-size: 13.5px; }
+  thead th{
+    text-align:left;
+    font-size: 11.5px;
+    color: var(--text-soft);
+    font-weight: 600;
+    padding: 8px 10px;
+    border-bottom: 1px solid var(--text);
+    white-space: nowrap;
+  }
+  thead th.num, td.num{ text-align:right; }
+  tbody td{
+    padding: 12px 10px;
+    border-bottom: 1px solid var(--line);
+    vertical-align: top;
+  }
+  tbody tr:hover{ background: #FAFAFA; }
+  tbody tr.loading-row td{ color: var(--text-soft); text-align:center; padding: 40px 0; }
+  .rank{ color: var(--text-soft); font-family:'IBM Plex Mono', monospace; font-size:12.5px; }
+  .title-cell .title{ font-weight: 600; font-size: 14px; }
+  .title-cell .title a{ color: inherit; text-decoration: none; }
+  .title-cell .title a:hover{ text-decoration: underline; }
+  .title-cell .byline{ color: var(--text-soft); font-size: 12px; margin-top: 3px; }
+  .cat-badge{
+    display:inline-block;
+    font-size: 11.5px;
+    color: var(--text-soft);
+    background: #F4F4F4;
+    padding: 2px 8px;
+    border-radius: 3px;
+  }
+  .isbn{ font-family:'IBM Plex Mono', monospace; font-size: 12px; color: var(--text-soft); }
+  .ebook-yes, .ebook-no, .ebook-unknown{
+    display:inline-block;
+    font-size: 11.5px;
+    padding: 2px 8px;
+    border-radius: 3px;
+  }
+  .ebook-yes{ background: var(--ebook-bg); color: var(--ebook-text); font-weight: 600; }
+  .ebook-no{ color: #B9B9B9; }
+  .ebook-unknown{ color: #C9C2A8; font-style: italic; }
+  .index-num{ font-family:'IBM Plex Mono', monospace; font-weight: 700; font-size: 14px; }
+  .index-prev{ display:block; font-family:'IBM Plex Mono', monospace; font-size: 11px; color: var(--text-soft); font-weight: 400; margin-top: 2px; }
+  .new-badge{
+    display:inline-block;
+    font-family:'IBM Plex Mono', monospace;
+    font-size: 10.5px;
+    font-weight: 700;
+    color: var(--new-text);
+    background: var(--new-bg);
+    padding: 2px 7px;
+    border-radius: 3px;
+    letter-spacing: 0.03em;
+  }
+
+  .empty{
+    padding: 60px 0;
+    text-align:center;
+    color: var(--text-soft);
+    font-family:'IBM Plex Mono', monospace;
+    font-size: 13px;
+  }
+  footer{
+    padding: 24px 0 50px;
+    font-family:'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: var(--text-soft);
+    border-top: 1px solid var(--line);
+    margin-top: 20px;
+  }
+
+  @media (max-width: 720px){
+    .isbn-col, .cat-col{ display:none; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="eyebrow">YES24 · 신간 국내도서</div>
+    <h1>판매지수 1000+ 오늘의 신간</h1>
+    <p>예스24 신간(국내도서) 중 판매지수 1000점을 넘어선 책만 모아봅니다. 분야별로 나눠 볼 수 있고, 전일 대비 새로 진입했거나 새로 1000점을 넘어선 책에는 NEW 표시가 붙습니다. 전자책 유무는 교보문고 기준입니다.</p>
+    <div class="meta">
+      <span>기준일 <b id="baseDate">-</b></span>
+      <span>대상 <b id="totalCount">-</b>종</span>
+    </div>
+    <div id="dataNotice">data.json을 아직 못 불러와서 예시 데이터로 보여주는 중입니다. 실제 배포 시 크롤러가 만든 data.json으로 자동 교체됩니다.</div>
+  </header>
+
+  <div class="tabbar-wrap">
+    <div class="tabbar" id="tabbar"></div>
+    <div class="controls">
+      <div class="threshold-line">
+        <label for="thresholdRange">판매지수 기준</label>
+        <input type="range" id="thresholdRange" min="0" max="5000" step="100" value="1000">
+        <span class="val" id="thresholdVal">1000</span>
+      </div>
+      <div class="sortbar">
+        <button data-sort="index" class="active">지수순</button>
+        <button data-sort="new">NEW 우선</button>
+      </div>
+    </div>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th class="num">순위</th>
+        <th>도서정보</th>
+        <th class="cat-col">분야</th>
+        <th class="isbn-col">ISBN</th>
+        <th>전자책(교보)</th>
+        <th class="num">판매지수</th>
+      </tr>
+    </thead>
+    <tbody id="tbody">
+      <tr class="loading-row"><td colspan="6">불러오는 중…</td></tr>
+    </tbody>
+  </table>
+  <div class="empty" id="emptyMsg" style="display:none;">해당 분야에는 기준을 넘는 신간이 없습니다.</div>
+
+  <footer>Daily crawl · 예스24 신상품(국내도서) × 교보문고 전자책 유무 교차 확인</footer>
+</div>
+
+<script>
+/*
+  실 데이터 연동 방식
+  ------------------------------------------------------------
+  1) 크롤러가 매일 아래 스키마의 배열을 data.json 으로 저장:
+
+     [
+       {
+         "goodsId": "195143567",              // 예스24 상품ID (/product/goods/{goodsId})
+         "title": "보호 관찰",
+         "author": "정한아 지음",
+         "publisher": "문학과지성사",
+         "categoryCode": "001001046",          // 예스24 분야 코드
+         "category": "소설/시/희곡",
+         "isbn": "9788932045665",              // 예스24 상세페이지 ISBN13
+         "ebookAvailable": true,               // 교보문고 상세페이지 related[] 에 E-ID 존재 여부
+         "kyoboUrl": "https://product.kyobobook.co.kr/detail/S000220119843", // 전자책 유무 확인 단계에서 이미 얻는 URL
+         "salesIndex": 3210,                   // 오늘 판매지수
+         "prevSalesIndex": 1450                // 전일 판매지수 (완전 신규 진입이면 null)
+       },
+       ...
+     ]
+
+  2) 이 페이지는 같은 폴더의 data.json 을 fetch 로 읽어서 렌더링.
+     아직 data.json 이 없거나 로컬에서 열람 중(file://)이라 fetch 가 막히면
+     아래 MOCK_DATA 로 자동 대체해서 화면 구조만 미리 볼 수 있게 함.
+*/
+
+const CATEGORY_LABELS = {
+  "001001046": "소설/시/희곡",
+  "001001047": "에세이",
+  "001001019": "인문",
+  "001001025": "경제 경영",
+  "001001026": "자기계발",
+  "001001022": "사회 정치",
+  "001001010": "역사",
+  "001001007": "예술",
+  "001001002": "자연과학",
+  "001001021": "종교",
+  "001001020": "인물",
+  "001001009": "여행",
+  "001001008": "만화/라이트노벨"
+};
+
+const MOCK_DATA = [
+  {goodsId:"195143001", title:"밤의 물류창고", author:"한소진 지음", publisher:"문학동네", categoryCode:"001001046", isbn:"9791190123456", ebookAvailable:true, kyoboUrl:"https://product.kyobobook.co.kr/detail/S000000000001", salesIndex:3210, prevSalesIndex:1450},
+  {goodsId:"195143002", title:"보호 관찰", author:"정한아 지음", publisher:"문학과지성사", categoryCode:"001001046", isbn:"9788932045665", ebookAvailable:true, kyoboUrl:"https://product.kyobobook.co.kr/detail/S000220119843", salesIndex:2870, prevSalesIndex:null},
+  {goodsId:"195143003", title:"경제는 감정으로 움직인다", author:"박서현 지음", publisher:"흐름출판", categoryCode:"001001025", isbn:"9791190456123", ebookAvailable:false, kyoboUrl:"https://product.kyobobook.co.kr/detail/S000000000003", salesIndex:2410, prevSalesIndex:2100},
+  {goodsId:"195143004", title:"작은 습관 하나", author:"제임스 클리어 지음 · 이수민 옮김", publisher:"비즈니스북스", categoryCode:"001001026", isbn:"9791189123890", ebookAvailable:true, kyoboUrl:"https://product.kyobobook.co.kr/detail/S000000000004", salesIndex:2260, prevSalesIndex:800},
+  {goodsId:"195143005", title:"우리가 잃어버린 도시", author:"정하율 지음", publisher:"창비", categoryCode:"001001019", isbn:"9788936412567", ebookAvailable:true, kyoboUrl:"https://product.kyobobook.co.kr/detail/S000000000005", salesIndex:1980, prevSalesIndex:1780},
+  {goodsId:"195143006", title:"뇌는 왜 자꾸 딴생각을 할까", author:"최윤재 지음", publisher:"동아시아", categoryCode:"001001002", isbn:"9788962621234", ebookAvailable:false, kyoboUrl:"https://product.kyobobook.co.kr/detail/S000000000006", salesIndex:1870, prevSalesIndex:null},
+  {goodsId:"195143007", title:"조용한 결정들", author:"강민서 지음", publisher:"북스톤", categoryCode:"001001022", isbn:"9791190153678", ebookAvailable:true, kyoboUrl:"https://product.kyobobook.co.kr/detail/S000000000007", salesIndex:1730, prevSalesIndex:1650},
+  {goodsId:"195143008", title:"조선의 밤을 걷다", author:"윤채린 지음", publisher:"푸른역사", categoryCode:"001001010", isbn:"9791156121345", ebookAvailable:false, kyoboUrl:"https://product.kyobobook.co.kr/detail/S000000000008", salesIndex:1540, prevSalesIndex:1490},
+  {goodsId:"195143009", title:"미술관 옆 작업실", author:"한지오 지음", publisher:"안그라픽스", categoryCode:"001001007", isbn:"9788970591456", ebookAvailable:true, kyoboUrl:"https://product.kyobobook.co.kr/detail/S000000000009", salesIndex:1420, prevSalesIndex:null},
+  {goodsId:"195143010", title:"두 번째 계절", author:"임소율 지음", publisher:"은행나무", categoryCode:"001001046", isbn:"9788956746789", ebookAvailable:true, kyoboUrl:"https://product.kyobobook.co.kr/detail/S000000000010", salesIndex:1380, prevSalesIndex:1310},
+  {goodsId:"195143011", title:"불안이라는 재능", author:"백은호 지음", publisher:"웅진지식하우스", categoryCode:"001001047", isbn:"9788901256123", ebookAvailable:true, kyoboUrl:"https://product.kyobobook.co.kr/detail/S000000000011", salesIndex:1250, prevSalesIndex:960},
+  {goodsId:"195143012", title:"작은 회사의 재무제표", author:"신아영 지음", publisher:"한스미디어", categoryCode:"001001025", isbn:"9788959466456", ebookAvailable:false, kyoboUrl:"https://product.kyobobook.co.kr/detail/S000000000012", salesIndex:1190, prevSalesIndex:1150},
+  {goodsId:"195143013", title:"질문하는 사회", author:"고태민 지음", publisher:"사계절", categoryCode:"001001019", isbn:"9791160948789", ebookAvailable:true, kyoboUrl:"https://product.kyobobook.co.kr/detail/S000000000013", salesIndex:1120, prevSalesIndex:1080},
+  {goodsId:"195143014", title:"별의 온도", author:"문가온 지음", publisher:"알마", categoryCode:"001001002", isbn:"9791159923123", ebookAvailable:true, kyoboUrl:"https://product.kyobobook.co.kr/detail/S000000000014", salesIndex:1080, prevSalesIndex:null},
+  {goodsId:"195143015", title:"오늘도 일단 걷는다", author:"서준혁 지음", publisher:"북라이프", categoryCode:"001001026", isbn:"9791190857456", ebookAvailable:false, kyoboUrl:"https://product.kyobobook.co.kr/detail/S000000000015", salesIndex:1040, prevSalesIndex:1020},
+];
+
+let BOOKS = [];
+let baseDate = "";
+let activeCategory = "전체";
+let threshold = 1000;
+let sortMode = "index";
+
+function categoryLabel(code){
+  return CATEGORY_LABELS[code] || code;
+}
+
+function isNewEntry(book, th){
+  if (book.salesIndex < th) return false;
+  if (book.prevSalesIndex === null || book.prevSalesIndex === undefined) return true;
+  return book.prevSalesIndex < th;
+}
+
+function formatIsbn(isbn){
+  if (!isbn) return '-';
+  return isbn.replace(/(\d{3})(\d{2})(\d{6})(\d{2})/, '$1-$2-$3-$4');
+}
+
+function categoriesInUse(){
+  const set = new Set(BOOKS.map(b => b.categoryCode));
+  return ["전체", ...Array.from(set).sort().map(categoryLabel)];
+}
+
+function renderTabs(){
+  const bar = document.getElementById('tabbar');
+  bar.innerHTML = '';
+  const cats = categoriesInUse();
+  cats.forEach(cat=>{
+    const count = BOOKS.filter(b => (cat==="전체" || categoryLabel(b.categoryCode)===cat) && b.salesIndex >= threshold).length;
+    const el = document.createElement('div');
+    el.className = 'tab' + (cat===activeCategory ? ' active' : '');
+    el.innerHTML = `${cat}<span class="count">${count}</span>`;
+    el.onclick = () => { activeCategory = cat; renderAll(); };
+    bar.appendChild(el);
+  });
+}
+
+function renderTable(){
+  const tbody = document.getElementById('tbody');
+  const emptyMsg = document.getElementById('emptyMsg');
+  tbody.innerHTML = '';
+
+  let list = BOOKS.filter(b => (activeCategory==="전체" || categoryLabel(b.categoryCode)===activeCategory) && b.salesIndex >= threshold);
+
+  if (sortMode === "index") list.sort((a,b)=> b.salesIndex - a.salesIndex);
+  if (sortMode === "new") list.sort((a,b)=> (isNewEntry(b,threshold) - isNewEntry(a,threshold)) || (b.salesIndex - a.salesIndex));
+
+  document.getElementById('totalCount').textContent = list.length;
+
+  if (list.length === 0){
+    document.querySelector('table').style.display = 'none';
+    emptyMsg.style.display = 'block';
+    return;
+  }
+  document.querySelector('table').style.display = 'table';
+  emptyMsg.style.display = 'none';
+
+  list.forEach((b, i)=>{
+    const newBadge = isNewEntry(b, threshold) ? `<span class="new-badge">NEW</span>` : '';
+    const prevLabel = (b.prevSalesIndex===null || b.prevSalesIndex===undefined)
+      ? '신규 진입'
+      : `전일 ${b.prevSalesIndex}`;
+    let ebookTag;
+    if (b.ebookAvailable === true) ebookTag = '<span class="ebook-yes">전자책 있음</span>';
+    else if (b.ebookAvailable === false) ebookTag = '<span class="ebook-no">전자책 없음</span>';
+    else ebookTag = '<span class="ebook-unknown">확인중</span>';
+
+    const linkUrl = b.kyoboUrl || `https://www.yes24.com/product/goods/${b.goodsId}`;
+
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td class="num rank">${i+1}</td>
+      <td class="title-cell">
+        <div class="title"><a href="${linkUrl}" target="_blank" rel="noopener">${b.title}</a> ${newBadge}</div>
+        <div class="byline">${b.author} · ${b.publisher}</div>
+      </td>
+      <td class="cat-col"><span class="cat-badge">${categoryLabel(b.categoryCode)}</span></td>
+      <td class="isbn-col isbn">${formatIsbn(b.isbn)}</td>
+      <td>${ebookTag}</td>
+      <td class="num">
+        <span class="index-num">${b.salesIndex}</span>
+        <span class="index-prev">${prevLabel}</span>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+function renderAll(){
+  renderTabs();
+  renderTable();
+}
+
+function initControls(){
+  document.getElementById('thresholdRange').addEventListener('input', (e)=>{
+    threshold = parseInt(e.target.value, 10);
+    document.getElementById('thresholdVal').textContent = threshold;
+    renderAll();
+  });
+
+  document.querySelectorAll('.sortbar button').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      document.querySelectorAll('.sortbar button').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      sortMode = btn.dataset.sort;
+      renderTable();
+    });
+  });
+}
+
+async function loadData(){
+  try{
+    const res = await fetch('./data.json', {cache: 'no-store'});
+    if (!res.ok) throw new Error('data.json not found');
+    const json = await res.json();
+    BOOKS = json.books || json;
+    baseDate = json.baseDate || '-';
+  }catch(err){
+    BOOKS = MOCK_DATA;
+    baseDate = '예시 데이터';
+    document.getElementById('dataNotice').style.display = 'block';
+  }
+  document.getElementById('baseDate').textContent = baseDate;
+  renderAll();
+}
+
+initControls();
+loadData();
+</script>
+</body>
+</html>

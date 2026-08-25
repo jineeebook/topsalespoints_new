@@ -30,7 +30,13 @@ HEADERS = {
         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
         "AppleWebKit/537.36 (KHTML, like Gecko) "
         "Chrome/124.0.0.0 Safari/537.36"
-    )
+    ),
+    "Accept": (
+        "text/html,application/xhtml+xml,application/xml;q=0.9,"
+        "image/webp,*/*;q=0.8"
+    ),
+    "Accept-Language": "ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7",
+    "Referer": "https://www.yes24.com/",
 }
 
 SALES_INDEX_THRESHOLD = 1000
@@ -88,6 +94,17 @@ def crawl_category_list(category_code):
 
         soup = BeautifulSoup(res.text, "html.parser")
         blocks = soup.select(".item_info")
+
+        if page == 1:
+            # 진단용 로그: 응답이 정상 목록 페이지인지 바로 알 수 있게
+            print(
+                f"    [디버그] status={res.status_code} "
+                f"응답길이={len(res.text)} item_info매칭={len(blocks)}"
+            )
+            if not blocks:
+                snippet = re.sub(r"\s+", " ", res.text)[:300]
+                print(f"    [디버그] 응답 앞부분: {snippet}")
+
         if not blocks:
             break
 
